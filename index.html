@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="de" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAA Extreme 2026 — Sebastian Trimborn</title>
+<style>
+:root{
+  color-scheme: light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f3f0;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,0.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232322;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,0.10);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232322;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,0.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+h1{font-size:22px;margin:0;letter-spacing:-0.01em}
+h2{font-size:15px;margin:0 0 2px;letter-spacing:-0.01em}
+.sub{color:var(--ink-2);font-size:13px;margin-top:3px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.card h2+.hint{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+.hint{color:var(--muted);font-size:12.5px}
+.grid{display:grid;gap:14px}
+.tiles{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 15px}
+.tile .lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tile .val{font-size:27px;font-weight:600;letter-spacing:-0.02em;margin-top:5px;line-height:1.05}
+.tile .val small{font-size:14px;font-weight:500;color:var(--ink-2);letter-spacing:0}
+.tile .sub2{font-size:12.5px;color:var(--ink-2);margin-top:4px}
+#profile{padding-top:14px}
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;
+  display:grid;grid-template-columns:minmax(230px,1fr) 2fr;gap:20px;align-items:center}
+@media(max-width:760px){.hero{grid-template-columns:1fr}}
+.heroname{display:flex;align-items:center;gap:10px}
+.dot{width:12px;height:12px;border-radius:50%;flex:none;box-shadow:0 0 0 2px var(--surface)}
+.heroname .n{font-size:21px;font-weight:650;letter-spacing:-0.02em}
+.herofig{font-size:44px;font-weight:650;letter-spacing:-0.03em;line-height:1;margin-top:10px}
+.herofig small{font-size:16px;font-weight:500;color:var(--ink-2)}
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:520px){.duel{grid-template-columns:1fr}}
+.duelbox{border:1px solid var(--border);border-radius:12px;padding:12px 14px;background:var(--surface-2)}
+.duelbox .who{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
+.duelbox .big{font-size:30px;font-weight:650;letter-spacing:-0.02em;margin:6px 0 2px;line-height:1}
+.ahead{color:var(--good)}.behind{color:var(--crit)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 6px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.gl{stroke:var(--grid);stroke-width:1}
+.ax{stroke:var(--axis);stroke-width:1}
+text{font-family:inherit;fill:var(--muted);font-size:11.5px}
+text.lbl{fill:var(--ink-2);font-size:12px}
+text.dl{font-size:12px;font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--grid);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td.l,th.l{text-align:left}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+tr.focus td{background:color-mix(in srgb,var(--s1) 11%,transparent);font-weight:600}
+tr.dnf td{color:var(--muted)}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:999px;border:1px solid var(--border);color:var(--ink-2)}
+.badge.dnf{color:var(--crit);border-color:color-mix(in srgb,var(--crit) 40%,transparent)}
+.tt{position:fixed;pointer-events:none;opacity:0;transition:opacity .1s;background:var(--surface);
+  border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:12.5px;
+  box-shadow:0 8px 24px rgba(0,0,0,.16);z-index:50;min-width:120px}
+.tt b{font-size:12.5px}
+.tt .r{display:flex;justify-content:space-between;gap:14px;margin-top:3px}
+.tt .r i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px}
+footer{color:var(--muted);font-size:12.5px;margin-top:24px;line-height:1.6}
+a{color:var(--s1)}
+.toggle{background:var(--surface);border:1px solid var(--border);color:var(--ink-2);border-radius:999px;
+  padding:6px 13px;font-size:12.5px;cursor:pointer;font-family:inherit}
+.toggle:hover:not(:disabled){border-color:var(--axis);color:var(--ink)}
+.toggle.primary{color:var(--ink);font-weight:600}
+.toggle:disabled{opacity:.45;cursor:not-allowed}
+.toggle.busy{opacity:.6;cursor:progress}
+.ctrls{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin-top:8px}
+.sel{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);
+  border-radius:999px;padding:4px 8px;font-size:12.5px;color:var(--ink-2)}
+.srlabel{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sel select{background:transparent;border:0;color:var(--ink);font-family:inherit;font-size:12.5px;
+  padding:2px 4px;cursor:pointer}
+.sel:has(select:disabled){opacity:.45}
+#ago{font-weight:400}
+.stamp{font-size:12.5px;color:var(--ink-2);text-align:right}
+.stamp b{color:var(--ink)}
+.hint.live{color:var(--good)}
+.hint.live::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--good);margin-right:6px;vertical-align:middle;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Race Around Austria Extreme 2026 — Solo</h1>
+    <div class="sub">Fokus: <b>Sebastian Trimborn</b> (Nr. 2) · Vergleich mit Rainer Steinberger (6) und Lukas Kaufmann (5)</div>
+  </div>
+  <div>
+    <div class="stamp">Datenstand <b id="stamp"></b> <span id="ago" class="hint"></span><br><span class="hint" id="livemark">Momentaufnahme – nicht live</span></div>
+    <div class="ctrls">
+      <button class="toggle primary" id="refreshbtn" title="Daten jetzt neu holen">↻ Aktualisieren</button>
+      <label class="sel" for="rate"><span class="srlabel">Rate</span>
+        <select id="rate" title="Wie oft die Daten automatisch neu geholt werden">
+          <option value="10">alle 10 s</option>
+          <option value="30" selected>alle 30 s</option>
+          <option value="60">jede Minute</option>
+          <option value="300">alle 5 min</option>
+          <option value="0">nur manuell</option>
+        </select>
+      </label>
+      <button class="toggle" id="themebtn">Dunkel / Hell</button>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div>
+    <div class="heroname"><span class="dot" style="background:var(--s1)"></span><span class="n">Sebastian Trimborn</span></div>
+    <div class="hint" id="fgeo"></div>
+    <div class="herofig" id="fkm"></div>
+    <div class="hint" id="fprog"></div>
+  </div>
+  <div class="duel" id="duel"></div>
+</div>
+
+<div class="grid tiles" id="tiles"></div>
+
+<div class="card">
+  <h2>Abstand im Rennverlauf</h2>
+  <p class="hint">Virtueller Zeitabstand: Wie viele Minuten war Trimborn an jedem Streckenpunkt vor (+) oder hinter (−) dem Gegner? Nulllinie = gleichauf. Getrennte Skalen, weil die beiden Abstände um Faktor 100 auseinanderliegen.</p>
+  <div class="grid" style="grid-template-columns:1fr 1fr" id="gapwrap">
+    <div><div class="legend"><span><i style="background:var(--s2)"></i>Rainer Steinberger</span></div><div id="gap1"></div></div>
+    <div><div class="legend"><span><i style="background:var(--s3)"></i>Lukas Kaufmann</span></div><div id="gap2"></div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Position auf der Strecke</h2>
+  <p class="hint">Höhenprofil der 2.145 km mit den aktuellen Positionen. Achtung: Momentaufnahme derselben Uhrzeit – die Startzeiten der drei liegen 8 Minuten auseinander.</p>
+  <div id="profile"></div>
+</div>
+
+<div class="card">
+  <h2>Tempo je Abschnitt</h2>
+  <p class="hint">Durchschnittsgeschwindigkeit zwischen den Zeitnahmestellen (km/h), inklusive Pausen.</p>
+  <div class="legend" id="speedleg"></div>
+  <div id="speed"></div>
+</div>
+
+<div class="card">
+  <h2>Zeitnahmestellen</h2>
+  <p class="hint">Fahrzeit seit dem eigenen Start. Abstand in Minuten: + = Trimborn voraus, − = Trimborn dahinter.</p>
+  <div class="scroll"><table id="splits"></table></div>
+</div>
+
+<div class="card">
+  <h2>Gesamtes Feld — RAA Extreme Solo</h2>
+  <p class="hint">Sortiert nach virtuellem Zeitabstand zu Trimborn — <span class="ahead">+ = Trimborn voraus</span>, <span class="behind">− = Trimborn dahinter</span>. Das Feld ist in zwei Startwellen unterwegs, deshalb sagt der Kilometerstand allein nichts über die Platzierung. Damen und Herren werden vom Veranstalter getrennt gewertet, und der Veranstalter reiht an den Zeitnahmestellen — kurzfristig kann seine Reihenfolge deshalb von dieser abweichen.</p>
+  <div class="scroll"><table id="fieldtbl"></table></div>
+</div>
+
+<footer>
+  Quelle: <a href="https://race.perfect-tracking.com/race/raa2026/ergebnisse" target="_blank" rel="noopener">race.perfect-tracking.com — RAA 2026</a> ·
+  Rechenweg: Die drei sind zwischen 20:36 und 20:44 Uhr gestartet, alle Live-Punkte stammen von derselben Uhrzeit. Bei nahen Gegnern wird der Straßenabstand mit dem aktuellen Tempo in Zeit umgerechnet und der Startversatz abgezogen; bei weit entfernten Gegnern wird deren Zeit an den Zeitnahmestellen interpoliert. Abweichungen zur offiziellen Wertung sind möglich ·
+  ETA-Werte stammen vom Veranstalter (mit Toleranz).
+</footer>
+</div>
+<div class="tt" id="tt"></div>
+<script>
+let DATA = null;
+</script>
+<script>
+const $ = s => document.querySelector(s);
+let R = {}, F = null, ORD = [];
+const COL = {}, SHORT = {};
+function initMeta(){
+  R = DATA.riders; F = DATA.focus; ORD = DATA.order;
+  ORD.forEach((id,i)=> COL[id] = ['var(--s1)','var(--s2)','var(--s3)'][i]);
+  ORD.forEach(id => SHORT[id] = R[id].name.replace('*','').split(' ').slice(-1)[0]);
+}
+
+const nf = (n,d=1)=> n==null? '–' : n.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+function hm(min){ if(min==null) return '–'; const s=min<0?'−':'+'; min=Math.abs(min);
+  const h=Math.floor(min/60), m=Math.round(min%60);
+  return s + (h? h+':'+String(m).padStart(2,'0')+' h' : m+' min'); }
+function dur(sec){ if(sec==null) return '–'; const d=Math.floor(sec/86400), h=Math.floor(sec%86400/3600), m=Math.floor(sec%3600/60);
+  return (d? d+'d ':'') + String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'); }
+
+/* ---------- tooltip ---------- */
+const tt = $('#tt');
+function showTT(x,y,html){ tt.innerHTML=html; tt.style.opacity=1;
+  const w=tt.offsetWidth, h=tt.offsetHeight;
+  tt.style.left = Math.min(window.innerWidth-w-10, Math.max(8,x+14))+'px';
+  tt.style.top  = Math.max(8, y-h-12)+'px'; }
+function hideTT(){ tt.style.opacity=0; }
+
+/* ---------- generic svg helpers ---------- */
+const SVGNS='http://www.w3.org/2000/svg';
+function el(n,a){ const e=document.createElementNS(SVGNS,n); for(const k in a) e.setAttribute(k,a[k]); return e; }
+function svgRoot(host,w,h){ const s=el('svg',{viewBox:`0 0 ${w} ${h}`,role:'img'}); host.innerHTML=''; host.appendChild(s); return s; }
+function niceTicks(min,max,n){ const span=max-min||1; const raw=span/n;
+  const mag=Math.pow(10,Math.floor(Math.log10(raw))); const norm=raw/mag;
+  const step=(norm<1.5?1:norm<3?2:norm<7?5:10)*mag;
+  const out=[]; for(let v=Math.ceil(min/step)*step; v<=max+1e-9; v+=step) out.push(+v.toFixed(6)); return out; }
+
+
+function render(){
+initMeta();
+/* ---------- header numbers ---------- */
+const dt = new Date(DATA.snapshot*1000);
+$('#stamp').textContent = dt.toLocaleString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'}) + ' Uhr';
+const f = R[F];
+$('#fgeo').textContent = f.geo;
+$('#fkm').innerHTML = nf(f.now_km,0).replace(',0','') + ' <small>von ' + nf(Math.floor(DATA.total_km),0).replace(',0','') + ' km</small>';
+$('#fprog').textContent = (100*f.now_km/DATA.total_km).toFixed(1).replace('.',',') + ' % geschafft · noch ' + nf(DATA.total_km-f.now_km,0).replace(',0','') + ' km';
+
+$('#duel').innerHTML = ORD.slice(1).map(id=>{
+  const g = DATA.nowgaps[id];            // + = Trimborn behind
+  const ahead = g < 0;
+  const dkm = R[id].now_km - f.now_km;
+  return `<div class="duelbox">
+    <div class="who"><span class="dot" style="background:${COL[id]}"></span>${R[id].name.replace('*','')}</div>
+    <div class="big ${ahead?'ahead':'behind'}">${hm(-g)}</div>
+    <div class="hint">${ahead? 'Trimborn liegt vorn (Startzeiten verrechnet)' : 'Rückstand von Trimborn'}<br>
+      Auf der Straße: ${SHORT[id]} ${dkm>0? nf(dkm,1)+' km weiter vorn' : nf(-dkm,1)+' km zurück'}</div>
+  </div>`;
+}).join('');
+
+const cur = DATA.speedrows[DATA.speedrows.length-1].v;
+const tiles = [
+  ['Tempo letzte 50 km', nf(f.v50,1)+' <small>km/h</small>',
+   'Steinberger '+nf(R[ORD[1]].v50,1)+' · Kaufmann '+nf(R[ORD[2]].v50,1)+' km/h'],
+  ['Ø seit Start', nf(f.avg,1)+' <small>km/h</small>', 'Fahrzeit '+dur(f.elapsed)+' · GPS jetzt '+f.speed+' km/h'],
+  ['Noch zu fahren', nf(DATA.total_km-f.now_km,0).replace(',0','')+' <small>km</small>',
+   'seit '+f.stations[f.stations.length-1].name+' (km '+nf(f.stations[f.stations.length-1].km,0).replace(',0','')+')'],
+  ['Zielankunft (Prognose)', f.eta || '–', 'Toleranz '+(f.etatol||'–')+' · Start '+f.start.replace('Di. 11. Aug ','Di. ')],
+];
+$('#tiles').innerHTML = tiles.map(t=>`<div class="tile"><div class="lbl">${t[0]}</div><div class="val">${t[1]}</div><div class="sub2">${t[2]}</div></div>`).join('');
+
+/* ---------- gap charts ---------- */
+function gapChart(host, rid){
+  const W=520,H=250,P={l:52,r:58,t:14,b:34};
+  const pts = DATA.gapcurve.filter(p=>p.gaps[rid]!=null).map(p=>({km:p.km, v:-p.gaps[rid], name:p.name, now:!!p.now}));
+  const s=svgRoot(host,W,H);
+  const xmin=0, xmax=DATA.total_km;
+  let vmin=Math.min(0,...pts.map(p=>p.v)), vmax=Math.max(0,...pts.map(p=>p.v));
+  const pad=(vmax-vmin)*0.12||10; vmin-=pad; vmax+=pad;
+  const X=k=>P.l+(k-xmin)/(xmax-xmin)*(W-P.l-P.r);
+  const Y=v=>P.t+(vmax-v)/(vmax-vmin)*(H-P.t-P.b);
+  niceTicks(vmin,vmax,4).forEach(v=>{
+    s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(v),y2:Y(v),class:'gl'}));
+    const t=el('text',{x:P.l-8,y:Y(v)+4,'text-anchor':'end'}); t.textContent=hm(v).replace('+',''); s.appendChild(t);
+  });
+  s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(0),y2:Y(0),class:'ax','stroke-dasharray':'4 4'}));
+  const z=el('text',{x:W-P.r+6,y:Y(0)+4}); z.textContent='gleichauf'; s.appendChild(z);
+  niceTicks(0,xmax,4).forEach(k=>{ const t=el('text',{x:X(k),y:H-P.b+18,'text-anchor':'middle'}); t.textContent=nf(k,0).replace(',0','')+(k===0?' km':''); s.appendChild(t); });
+  const d = pts.map((p,i)=>(i?'L':'M')+X(p.km).toFixed(1)+' '+Y(p.v).toFixed(1)).join(' ');
+  s.appendChild(el('path',{d, fill:'none', stroke:COL[rid], 'stroke-width':2, 'stroke-linejoin':'round','stroke-linecap':'round'}));
+  const last=pts[pts.length-1];
+  s.appendChild(el('circle',{cx:X(last.km),cy:Y(last.v),r:5,fill:COL[rid],stroke:'var(--surface)','stroke-width':2}));
+  const dl=el('text',{x:X(last.km)+9,y:Y(last.v)+4,class:'dl',fill:COL[rid]}); dl.textContent=hm(last.v); s.appendChild(dl);
+  // crosshair
+  const cross=el('line',{x1:0,x2:0,y1:P.t,y2:H-P.b,class:'ax',opacity:0}); s.appendChild(cross);
+  const hit=el('rect',{x:P.l,y:P.t,width:W-P.l-P.r,height:H-P.t-P.b,fill:'transparent'}); s.appendChild(hit);
+  hit.addEventListener('mousemove',ev=>{
+    const bb=s.getBoundingClientRect(); const kx=xmin+(ev.clientX-bb.left)/bb.width*W;
+    let best=pts[0],bd=1e9; pts.forEach(p=>{const dd=Math.abs(X(p.km)-kx); if(dd<bd){bd=dd;best=p;}});
+    cross.setAttribute('x1',X(best.km)); cross.setAttribute('x2',X(best.km)); cross.setAttribute('opacity',.5);
+    showTT(ev.clientX,ev.clientY,`<b>${best.now?'Jetzt':best.name}</b> · km ${nf(best.km,0).replace(',0','')}
+      <div class="r"><span><i style="background:${COL[rid]}"></i>${SHORT[rid]}</span><b>${best.v>=0? 'Trimborn '+hm(best.v):'Trimborn '+hm(best.v)}</b></div>`);
+  });
+  hit.addEventListener('mouseleave',()=>{cross.setAttribute('opacity',0);hideTT();});
+}
+gapChart($('#gap1'), ORD[1]);
+gapChart($('#gap2'), ORD[2]);
+
+/* ---------- elevation profile with positions ---------- */
+(function(){
+  const host=$('#profile'), W=1080,H=280,P={l:44,r:16,t:46,b:30};
+  const s=svgRoot(host,W,H);
+  const prof=DATA.profile, xmax=DATA.total_km;
+  const amax=Math.max(...prof.map(p=>p[1]))*1.05;
+  const X=k=>P.l+k/xmax*(W-P.l-P.r), Y=a=>P.t+(1-a/amax)*(H-P.t-P.b);
+  niceTicks(0,amax,4).forEach(a=>{ s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(a),y2:Y(a),class:'gl'}));
+    const t=el('text',{x:P.l-8,y:Y(a)+4,'text-anchor':'end'}); t.textContent=nf(a,0).replace(',0','')+(a===0?' m':''); s.appendChild(t); });
+  let d='M'+X(0)+' '+Y(0);
+  prof.forEach(p=> d+=' L'+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1));
+  d+=' L'+X(xmax)+' '+Y(0)+' Z';
+  s.appendChild(el('path',{d,fill:'var(--surface-2)',stroke:'var(--axis)','stroke-width':1}));
+  niceTicks(0,xmax,6).forEach(k=>{ const t=el('text',{x:X(k),y:H-P.b+18,'text-anchor':'middle'}); t.textContent=nf(k,0).replace(',0','')+(k===0?' km':''); s.appendChild(t); });
+  // finish marker
+  s.appendChild(el('line',{x1:X(xmax),x2:X(xmax),y1:P.t-6,y2:Y(0),class:'ax','stroke-dasharray':'3 3'}));
+  const rows = ORD.map(id=>({id, km:R[id].now_km, alt:R[id].now_alt})).sort((a,b)=>a.km-b.km);
+  rows.forEach((r,i)=> r.lane = P.t-40 + i*15);
+  // focus rider drawn last so its marker sits on top when riders overlap
+  rows.sort((a,b)=> (a.id===F?1:0)-(b.id===F?1:0));
+  rows.forEach(r=>{
+    const x=X(r.km), y=Y(r.alt);
+    const lane = r.lane;
+    s.appendChild(el('line',{x1:x,x2:x,y1:lane+4,y2:y,stroke:COL[r.id],'stroke-width':2,opacity:.55}));
+    s.appendChild(el('circle',{cx:x,cy:y,r:r.id===F?7:6,fill:COL[r.id],stroke:'var(--surface)','stroke-width':2}));
+    const anchor = x > W-300 ? 'end' : 'start';
+    const t=el('text',{x: x + (anchor==='end'? -9:9), y: lane+8, class:'dl', fill:COL[r.id], 'text-anchor':anchor});
+    t.textContent = SHORT[r.id] + ' · ' + nf(r.km,0).replace(',0','') + ' km';
+    s.appendChild(t);
+    const hit=el('circle',{cx:x,cy:y,r:16,fill:'transparent'}); s.appendChild(hit);
+    hit.addEventListener('mousemove',ev=>showTT(ev.clientX,ev.clientY,
+      `<b>${R[r.id].name.replace('*','')}</b><div class="r"><span>Position</span><b>km ${nf(r.km,1)}</b></div>
+       <div class="r"><span>Höhe</span><b>${nf(r.alt,0).replace(',0','')} m</b></div>
+       <div class="r"><span>Ort</span><b>${R[r.id].geo}</b></div>
+       <div class="r"><span>Tempo</span><b>${R[r.id].speed} km/h</b></div>`));
+    hit.addEventListener('mouseleave',hideTT);
+  });
+})();
+
+/* ---------- segment speed bars ---------- */
+$('#speedleg').innerHTML = ORD.map(id=>`<span><i style="background:${COL[id]}"></i>${R[id].name.replace('*','')}</span>`).join('');
+(function(){
+  const host=$('#speed'), rows=DATA.speedrows, W=1080,H=290,P={l:44,r:16,t:14,b:56};
+  const s=svgRoot(host,W,H);
+  const vmax=Math.max(...rows.flatMap(r=>ORD.map(id=>r.v[id]||0)))*1.12;
+  const bw=(W-P.l-P.r)/rows.length, gw=bw*0.68, bar=(gw-2*2)/3;
+  const Y=v=>P.t+(1-v/vmax)*(H-P.t-P.b);
+  niceTicks(0,vmax,4).forEach(v=>{ s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(v),y2:Y(v),class:'gl'}));
+    const t=el('text',{x:P.l-8,y:Y(v)+4,'text-anchor':'end'}); t.textContent=nf(v,0).replace(',0','')+(v===0?' km/h':''); s.appendChild(t); });
+  s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(0),y2:Y(0),class:'ax'}));
+  rows.forEach((r,i)=>{
+    const x0=P.l+i*bw+(bw-gw)/2;
+    ORD.forEach((id,j)=>{
+      const v=r.v[id]; if(v==null) return;
+      const x=x0+j*(bar+2), y=Y(v), h=Math.max(2,Y(0)-y);
+      const rect=el('rect',{x:x.toFixed(1),y:y.toFixed(1),width:bar.toFixed(1),height:h.toFixed(1),
+        fill:COL[id], rx:4, ry:4});
+      s.appendChild(rect);
+      s.appendChild(el('rect',{x:x.toFixed(1),y:(Y(0)-4).toFixed(1),width:bar.toFixed(1),height:4,fill:COL[id]}));
+      const hit=el('rect',{x:x.toFixed(1),y:P.t,width:bar.toFixed(1),height:H-P.t-P.b,fill:'transparent'});
+      s.appendChild(hit);
+      hit.addEventListener('mousemove',ev=>showTT(ev.clientX,ev.clientY,
+        `<b>${r.to}</b> · km ${nf(r.km,0).replace(',0','')}` +
+        ORD.map(k=>`<div class="r"><span><i style="background:${COL[k]}"></i>${SHORT[k]}</span><b>${r.v[k]==null?'–':nf(r.v[k],1)+' km/h'}</b></div>`).join('')));
+      hit.addEventListener('mouseleave',hideTT);
+    });
+    const lab=el('text',{x:P.l+i*bw+bw/2, y:H-P.b+18,'text-anchor':'end',
+      transform:`rotate(-30 ${P.l+i*bw+bw/2} ${H-P.b+18})`});
+    lab.textContent = r.to.length>18? r.to.slice(0,17)+'…' : r.to;
+    s.appendChild(lab);
+  });
+})();
+
+/* ---------- splits table ---------- */
+(function(){
+  const t=$('#splits');
+  let h='<thead><tr><th>Zeitnahmestelle</th><th>km</th><th>Höhe</th>'+
+    ORD.map(id=>`<th>${SHORT[id]}</th>`).join('')+
+    `<th>Δ ${SHORT[ORD[1]]}</th><th>Δ ${SHORT[ORD[2]]}</th></tr></thead><tbody>`;
+  DATA.stat_rows.slice().reverse().forEach(r=>{
+    const g1=r.g[ORD[1]], g2=r.g[ORD[2]];
+    h+=`<tr><td>${r.name}</td><td>${nf(r.km,0).replace(',0','')}</td><td>${r.alt} m</td>`+
+      ORD.map(id=>`<td${id===F?' style="font-weight:600"':''}>${dur(r.e[id])}</td>`).join('')+
+      `<td class="${g1==null?'':(g1<0?'ahead':'behind')}">${g1==null?'–':hm(-g1)}</td>`+
+      `<td class="${g2==null?'':(g2<0?'ahead':'behind')}">${g2==null?'–':hm(-g2)}</td></tr>`;
+  });
+  t.innerHTML=h+'</tbody>';
+})();
+
+/* ---------- field table ---------- */
+(function(){
+  const t=$('#fieldtbl');
+  let h='<thead><tr><th>#</th><th class="l">Fahrer</th><th>Nr.</th><th>km</th><th class="l">Ort</th><th>Fahrzeit</th><th>Ø km/h</th><th>Δ Trimborn</th><th>Ziel (Prog.)</th></tr></thead><tbody>';
+  let pos=0;
+  DATA.field.forEach(r=>{
+    const dnf = r.status===3;
+    if(!dnf) pos++;
+    h+=`<tr class="${r.id==F?'focus':''} ${dnf?'dnf':''}">
+      <td>${dnf?'<span class="badge dnf">DNF</span>':pos}</td>
+      <td class="l">${r.name.replace('*','')}${r.tracked&&r.id!=F?' •':''}</td><td>${r.num}</td>
+      <td>${nf(r.km,0).replace(',0','')}</td><td class="l">${r.geo}</td><td>${r.runtime}</td><td>${nf(r.avg,1)}</td>
+      <td class="${r.id==F?'':(r.gap>0?'behind':'ahead')}">${r.id==F?'—':hm(-r.gap)}</td>
+      <td>${r.eta||'–'}</td></tr>`;
+  });
+  t.innerHTML=h+'</tbody>';
+})();
+
+}
+/* ---------- theme toggle ---------- */
+$('#themebtn').addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const dark = cur==='dark' || (cur!=='light' && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme', dark?'light':'dark');
+});
+
+/* ---------- Aktualisierung ----------------------------------------------
+   Läuft die Seite über den lokalen Server (raa_live.py), holt "/refresh"
+   frische Daten vom Tracking-Server; als reine Datei geöffnet ist kein
+   Abruf möglich und es bleibt bei der Momentaufnahme. */
+if(DATA) render();
+
+const btn = $('#refreshbtn'), rateSel = $('#rate'), mark = $('#livemark'), agoEl = $('#ago');
+const canFetch = location.protocol === 'http:' || location.protocol === 'https:';
+let liveOk = false, timer = null, busy = false, mode = null;   // 'live' | 'published' | null
+
+function setMark(txt, live){ mark.textContent = txt; mark.className = live? 'hint live' : 'hint'; }
+function rateText(){ return rateSel.options[rateSel.selectedIndex].text; }
+function statusText(){
+  if(!liveOk) return 'Momentaufnahme – keine frischen Daten abrufbar';
+  if(rateSel.value === '0') return mode==='live' ? 'Live-Modus · manuell' : 'nur manuell';
+  return (mode==='live' ? 'aktualisiert sich ' : 'prüft ') + rateText();
+}
+
+function ago(){
+  if(!liveOk || !DATA) { agoEl.textContent=''; return; }
+  const s = Math.max(0, Math.round(Date.now()/1000 - DATA.snapshot));
+  agoEl.textContent = s < 60 ? `· vor ${s} s` : `· vor ${Math.round(s/60)} min`;
+}
+setInterval(ago, 1000);
+
+async function refresh(manual){
+  if(busy) return;
+  busy = true; btn.classList.add('busy'); btn.textContent = '↻ lädt …';
+  try{
+    let res = null, m = 'live';
+    const isLocal = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    if(isLocal && mode !== 'published'){ try{ res = await fetch('refresh?_=' + Date.now(), {cache:'no-store'}); }catch(e){} }
+    if(!res || !res.ok){ m = 'published'; res = await fetch('data.json?_=' + Date.now(), {cache:'no-store'}); }
+    if(!res.ok) throw 0;
+    const j = await res.json();
+    if(!DATA || j.snapshot !== DATA.snapshot){ DATA = j; render(); }
+    mode = m; liveOk = true;
+    setMark(statusText(), true);
+    ago();
+  }catch(e){
+    liveOk = false;
+    setMark('Momentaufnahme – keine frischen Daten abrufbar', false);
+    if(manual) alert('Die Renndaten sind von hier aus nicht abrufbar.\n\nFrische Zahlen zeigt die Seite nur online oder über das lokale Skript:\n\n  python3 raa_live.py\n  http://localhost:8777');
+  }finally{
+    busy = false; btn.classList.remove('busy'); btn.textContent = '↻ Aktualisieren';
+  }
+}
+
+function applyRate(){
+  if(timer){ clearInterval(timer); timer = null; }
+  const s = parseInt(rateSel.value, 10);
+  if(s > 0 && canFetch) timer = setInterval(()=>refresh(false), s*1000);
+  if(liveOk) setMark(statusText(), true);
+}
+
+btn.addEventListener('click', ()=>refresh(true));
+rateSel.addEventListener('change', applyRate);
+
+if(canFetch){ refresh(false).then(applyRate); }
+else{
+  btn.disabled = true; rateSel.disabled = true;
+  setMark('Momentaufnahme – online oder über raa_live.py für frische Daten', false);
+}
+if(!DATA){
+  $('#fkm').innerHTML = '<small>Daten werden geladen …</small>';
+  setTimeout(()=>{ if(!DATA) $('#fkm').innerHTML = '<small>Daten nicht erreichbar</small>'; }, 8000);
+}
+</script>
+</body>
+</html>
