@@ -2,7 +2,7 @@ name: Daten holen und veröffentlichen
 
 on:
   schedule:
-    # Alle 5 Minuten — das ist das kürzeste Intervall, das GitHub erlaubt.
+    # Alle 45 Minuten — das ist das kürzeste Intervall, das GitHub erlaubt.
     # Unter Last startet GitHub geplante Läufe oft später, deshalb kann der
     # Datenstand in der Praxis auch mal 10–15 Minuten alt sein.
     - cron: "*/45 * * * *"
