@@ -5,7 +5,7 @@ on:
     # Alle 5 Minuten — das ist das kürzeste Intervall, das GitHub erlaubt.
     # Unter Last startet GitHub geplante Läufe oft später, deshalb kann der
     # Datenstand in der Praxis auch mal 10–15 Minuten alt sein.
-    - cron: "*/5 * * * *"
+    - cron: "*/45 * * * *"
   workflow_dispatch:        # Knopf "Run workflow" für sofortige Aktualisierung
   push:
     branches: [main]
